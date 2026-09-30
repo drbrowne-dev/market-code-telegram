@@ -1,9 +1,12 @@
 import os
+import re
 import json
+import html
 import datetime
 import requests
 import feedparser
 from image_gen import generate_image
+import webpage
 
 FEEDS = [
     "https://www.federalreserve.gov/feeds/press_all.xml",
@@ -14,6 +17,18 @@ FEEDS = [
 MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 LANG = os.environ.get("POST_LANGUAGE", "English")
 HISTORY_FILE = "history.json"
+DOCS = "../docs"
+
+
+def clean(text):
+    text = re.sub(r"<[^>]+>", " ", text or "")
+    return re.sub(r"\s+", " ", html.unescape(text)).strip()
+
+
+def as_list(v):
+    if isinstance(v, list):
+        return [str(x).strip() for x in v if str(x).strip()]
+    return [p.strip() for p in str(v).split("\n") if p.strip()]
 
 
 def load_history():
@@ -30,48 +45,72 @@ def save_history(history, entry):
         json.dump(history[-40:], f, ensure_ascii=False, indent=2)
 
 
-def get_headlines():
+def get_items():
     items = []
     for url in FEEDS:
         feed = feedparser.parse(url)
         print(f"{url} -> {len(feed.entries)} items")
+        source = clean(feed.feed.get("title", "")) or url.split("/")[2]
         for e in feed.entries[:6]:
-            title = e.get("title", "").strip()
+            title = clean(e.get("title"))
             if title:
-                items.append(f"- {title} ({url.split('/')[2]})")
+                items.append(
+                    {
+                        "title": title,
+                        "summary": clean(e.get("summary"))[:400],
+                        "link": e.get("link", ""),
+                        "source": source,
+                    }
+                )
     if not items:
-        raise RuntimeError("No headlines found from any feed")
+        raise RuntimeError("No items found from any feed")
     return items
 
 
-def ask_gemini(headlines, history):
+def ask_gemini(items, history):
     recent = "\n".join(
         f"- {h['headline']} | image: {h['image_subject']}" for h in history[-10:]
     ) or "- (none yet)"
+    listing = "\n".join(
+        f"[{i}] {it['title']} -- {it['summary']} ({it['source']})"
+        for i, it in enumerate(items)
+    )
     prompt = (
-        "You are the editor of THE MARKET CODE, an educational trading-psychology "
-        "and market-insight Telegram channel.\n"
-        "Below are today's headlines from public news feeds.\n"
-        "Pick the ONE story most relevant to traders (gold, forex, indices, oil, "
+        "You are the editor of THE MARKET CODE by E11 Lab, an educational "
+        "trading-psychology and market-insight publication.\n"
+        "Below are today's news items from public feeds, each with an index, "
+        "title and short summary.\n"
+        "Pick the ONE item most relevant to traders (gold, forex, indices, oil, "
         "crypto, interest rates) that is NOT similar to the recently posted ones. "
-        "Write a short original post about it in " + LANG + ".\n"
-        "Rules for the post: do not copy headline wording; 3 to 5 short lines; "
-        "explain what happened and what traders should watch; never give buy or "
-        "sell signals or price targets; calm, professional tone.\n"
-        "Rules for image_subject: write ONE scene description (max 35 words) for "
-        "a collage illustration that visually tells THIS specific story using 3 "
-        "kinds of elements: (1) the main subject tied to the story, such as the "
-        "country's central bank or government building, a recognizable national "
-        "landmark, the relevant country map, an oil pump jack or tanker, gold "
-        "bars, a bitcoin coin, a bull or bear statue, or a factory or shopping "
-        "cart for economic data; (2) the currencies or assets involved, shown as "
-        "coins or banknotes; (3) the direction of the story as an orange arrow "
-        "or bar chart without numbers: rising if bullish, falling if bearish, "
-        "flat if neutral. Choose elements that look clearly different from the "
-        "recent images listed below. No text, numbers or people in the scene.\n"
-        "Return ONLY JSON with keys: headline (max 8 words), body, image_subject.\n\n"
+        "Write ORIGINAL commentary about it in " + LANG + ".\n"
+        "Use ONLY facts found in the chosen item's title and summary. Do not "
+        "invent numbers, quotes, dates or events. If details are thin, keep the "
+        "facts brief and explain the concept and context for traders (for "
+        "example how rate decisions or oil prices can affect a currency). Never "
+        "copy sentences from the source. Never give buy or sell signals or price "
+        "targets. Calm, professional tone.\n"
+        "Return ONLY JSON with these keys:\n"
+        "headline: max 10 words, news style;\n"
+        "teaser: 2 short sentences, max 260 characters, for the Telegram post "
+        "and the website card;\n"
+        "article: a list of 4 to 6 paragraphs (about 250 to 400 words in total) "
+        "explaining what happened, why it matters, and what traders should watch;\n"
+        "takeaways: a list of exactly 3 short bullet points;\n"
+        "image_subject: ONE scene description (max 35 words) for a collage "
+        "illustration that visually tells THIS specific story using 3 kinds of "
+        "elements: (1) the main subject tied to the story, such as the country's "
+        "central bank or government building, a recognizable national landmark, "
+        "the relevant country map, an oil pump jack or tanker, gold bars, a "
+        "bitcoin coin, a bull or bear statue, or a factory or shopping cart for "
+        "economic data; (2) the currencies or assets involved, shown as coins or "
+        "banknotes; (3) the direction of the story as an arrow or bar chart "
+        "without numbers: rising if bullish, falling if bearish, flat if "
+        "neutral. Do not mention colours. Choose elements that look clearly "
+        "different from the recent images listed below. No text, numbers or "
+        "people in the scene;\n"
+        "source_index: the integer index of the chosen item.\n\n"
         "RECENTLY POSTED (avoid repeating):\n" + recent + "\n\n"
-        "TODAY'S HEADLINES:\n" + "\n".join(headlines)
+        "TODAY'S ITEMS:\n" + listing
     )
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
     r = requests.post(
@@ -84,7 +123,7 @@ def ask_gemini(headlines, history):
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"responseMimeType": "application/json"},
         },
-        timeout=90,
+        timeout=120,
     )
     r.raise_for_status()
     text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
@@ -93,38 +132,64 @@ def ask_gemini(headlines, history):
 
 
 def main():
+    if not webpage.SITE_URL:
+        raise RuntimeError("SITE_URL is not set")
+
     history = load_history()
-    headlines = get_headlines()
-    post = ask_gemini(headlines, history)
-    print("Gemini chose:", post["headline"], "|", post["image_subject"])
+    items = get_items()
+    post = ask_gemini(items, history)
 
-    img, source = generate_image(post["image_subject"])
+    try:
+        idx = int(post.get("source_index", 0))
+    except Exception:
+        idx = 0
+    if not 0 <= idx < len(items):
+        idx = 0
+    src = items[idx]
+    print("Gemini chose:", post["headline"], "| source:", src["source"])
+    print("Scene:", post["image_subject"])
 
-    caption = (
-        f"📰 {post['headline'].upper()}\n\n"
-        f"{post['body']}\n\n"
-        "⚠️ Educational only. Not financial advice.\n"
-        "━━━━━━━━━━\n"
-        "THE MARKET CODE"
-    )[:1000]
+    img, provider = generate_image(post["image_subject"])
 
-    r = requests.post(
-        f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendPhoto",
-        data={"chat_id": os.environ["TELEGRAM_CHAT_ID"], "caption": caption},
-        files={"photo": ("image.jpg", img, "image/jpeg")},
-        timeout=60,
+    today = datetime.date.today().isoformat()
+    slug = f"{today}-{webpage.slugify(post['headline'])}"
+    os.makedirs(os.path.join(DOCS, "news"), exist_ok=True)
+    with open(os.path.join(DOCS, "news", slug + ".jpg"), "wb") as f:
+        f.write(img)
+
+    article = {
+        "slug": slug,
+        "date": today,
+        "headline": post["headline"].strip(),
+        "teaser": post["teaser"].strip(),
+        "source_name": src["source"],
+        "source_url": src["link"] or "#",
+    }
+    articles = webpage.load_articles(DOCS)
+    articles.insert(0, article)
+    webpage.save_articles(DOCS, articles)
+    webpage.write_site(
+        DOCS, article, as_list(post["article"]), as_list(post["takeaways"]), articles
     )
-    r.raise_for_status()
-    print(f"Posted (image via {source})")
+
+    last = {
+        "headline": article["headline"],
+        "teaser": article["teaser"],
+        "url": f"{webpage.SITE_URL}/news/{slug}.html",
+        "image_path": f"{DOCS}/news/{slug}.jpg",
+    }
+    with open("last_post.json", "w", encoding="utf-8") as f:
+        json.dump(last, f, ensure_ascii=False, indent=2)
 
     save_history(
         history,
         {
-            "date": datetime.date.today().isoformat(),
-            "headline": post["headline"],
+            "date": today,
+            "headline": article["headline"],
             "image_subject": post["image_subject"],
         },
     )
+    print(f"Article built (image via {provider}):", last["url"])
 
 
 main()

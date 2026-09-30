@@ -1,14 +1,38 @@
 import os
+import random
 import base64
 import requests
 from urllib.parse import quote
 
-STYLE = (
-    "Editorial collage illustration, {obj} as the hero subject, centered, "
-    "on a warm cream paper background. Bold orange gouache paint smear behind "
-    "the subject, black charcoal ash dust scattered below, subtle paper grain, "
-    "soft studio lighting, minimalist, no text, no logos, no letters"
-)
+ANGLES = [
+    "three-quarter view",
+    "low-angle close-up",
+    "top-down view",
+    "side profile",
+    "slightly tilted dramatic angle",
+]
+PAINTS = [
+    "one large rough orange gouache brush-stroke smear",
+    "a bold deep-orange paint swipe",
+    "two overlapping orange paint strokes",
+    "a wide torn orange paint stain",
+]
+ASHES = [
+    "black charcoal ash and soot particles scattered below",
+    "black ink splatter and ash dust drifting to one side",
+    "dark charcoal crumbs and dust spilling out beneath",
+]
+
+
+def build_prompt(obj):
+    return (
+        f"Editorial collage illustration of {obj}, {random.choice(ANGLES)}, "
+        "centered on a flat warm cream paper background. Behind the subject, "
+        f"{random.choice(PAINTS)}. {random.choice(ASHES)}. "
+        "Photorealistic subject, subtle paper grain, soft studio lighting, "
+        "lots of empty space, clean minimal composition, no text, no logos, "
+        "no letters, no numbers, no engraving or stamps on the object, no people"
+    )
 
 
 def cloudflare_image(prompt):
@@ -32,7 +56,13 @@ def pollinations_image(prompt):
     url = "https://image.pollinations.ai/prompt/" + quote(prompt)
     r = requests.get(
         url,
-        params={"width": 1344, "height": 768, "model": "flux", "nologo": "true"},
+        params={
+            "width": 1344,
+            "height": 768,
+            "model": "flux",
+            "nologo": "true",
+            "seed": random.randint(1, 999999),
+        },
         timeout=120,
     )
     r.raise_for_status()
@@ -42,7 +72,8 @@ def pollinations_image(prompt):
 
 
 def generate_image(obj):
-    prompt = STYLE.format(obj=obj)
+    prompt = build_prompt(obj)
+    print("Image prompt:", prompt)
     providers = (("Cloudflare", cloudflare_image), ("Pollinations", pollinations_image))
     for name, fn in providers:
         try:

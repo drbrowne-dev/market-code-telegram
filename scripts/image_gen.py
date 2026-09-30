@@ -4,34 +4,38 @@ import base64
 import requests
 from urllib.parse import quote
 
-ANGLES = [
-    "three-quarter view",
-    "low-angle close-up",
-    "top-down view",
-    "side profile",
-    "slightly tilted dramatic angle",
+STYLE = (
+    "Editorial mixed-media collage illustration for a financial news article, "
+    "on a cream off-white paper background. Desaturated black-and-white "
+    "photographic cutouts of the scene elements, combined with bold flat "
+    "graphic shapes in vivid orange and solid black. Limited palette: cream, "
+    "black, charcoal grey, vivid orange. Scene: {scene}. {layout}. {extras}. "
+    "Torn paper edges, subtle paper grain, clean flat composition, "
+    "no readable text, no letters, no numbers, no logos, no watermark, no people"
+)
+
+LAYOUTS = [
+    "A large vivid orange circle behind the main subject and a smaller black circle at the edge",
+    "Main subject on the left, secondary elements overlapping in the center, a big orange brush-stroke shape on the right",
+    "Main subject centered over a wide orange paint smear with black ink splatter below",
+    "Two overlapping torn paper layers with a block of orange behind and black ink drips",
+    "Main subject in the lower half with a huge orange sun-like disc rising behind it",
+    "Symmetrical composition with the subject in the middle and orange and black shapes on both sides",
 ]
-PAINTS = [
-    "one large rough orange gouache brush-stroke smear",
-    "a bold deep-orange paint swipe",
-    "two overlapping orange paint strokes",
-    "a wide torn orange paint stain",
-]
-ASHES = [
-    "black charcoal ash and soot particles scattered below",
-    "black ink splatter and ash dust drifting to one side",
-    "dark charcoal crumbs and dust spilling out beneath",
+EXTRAS = [
+    "An orange halftone dot pattern in one corner",
+    "Thin black radiating lines fanning out from behind the subject",
+    "Orange and black ink splatter dots scattered around",
+    "A faint grid of thin lines in the background",
+    "Small torn orange paper strips along one edge",
 ]
 
 
-def build_prompt(obj):
-    return (
-        f"Editorial collage illustration of {obj}, {random.choice(ANGLES)}, "
-        "centered on a flat warm cream paper background. Behind the subject, "
-        f"{random.choice(PAINTS)}. {random.choice(ASHES)}. "
-        "Photorealistic subject, subtle paper grain, soft studio lighting, "
-        "lots of empty space, clean minimal composition, no text, no logos, "
-        "no letters, no numbers, no engraving or stamps on the object, no people"
+def build_prompt(scene):
+    return STYLE.format(
+        scene=scene,
+        layout=random.choice(LAYOUTS),
+        extras=random.choice(EXTRAS),
     )
 
 
@@ -71,8 +75,8 @@ def pollinations_image(prompt):
     return r.content
 
 
-def generate_image(obj):
-    prompt = build_prompt(obj)
+def generate_image(scene):
+    prompt = build_prompt(scene)
     print("Image prompt:", prompt)
     providers = (("Cloudflare", cloudflare_image), ("Pollinations", pollinations_image))
     for name, fn in providers:

@@ -6,33 +6,45 @@ from urllib.parse import quote
 
 STYLE = (
     "Editorial mixed-media collage illustration for a financial news article, "
-    "on a cream off-white paper background. Desaturated black-and-white "
-    "photographic cutouts of the scene elements, combined with bold flat "
-    "graphic shapes in vivid orange and solid black. Limited palette: cream, "
-    "black, charcoal grey, vivid orange. Scene: {scene}. {layout}. {extras}. "
-    "Torn paper edges, subtle paper grain, clean flat composition, "
-    "no readable text, no letters, no numbers, no logos, no watermark, no people"
+    "{bg}. Desaturated black-and-white photographic cutouts of the scene "
+    "elements, combined with bold flat graphic shapes in vivid cyan (turquoise) "
+    "and emerald green. Limited palette: black, charcoal grey, white, vivid "
+    "cyan, emerald green. Any rising arrow or chart is emerald green, any "
+    "falling arrow or chart is cyan. Scene: {scene}. {layout}. {extras}. "
+    "Torn paper edges, subtle paper grain, clean flat composition, no orange, "
+    "no red, no readable text, no letters, no numbers, no logos, no watermark, "
+    "no people"
 )
 
-LAYOUTS = [
-    "A large vivid orange circle behind the main subject and a smaller black circle at the edge",
-    "Main subject on the left, secondary elements overlapping in the center, a big orange brush-stroke shape on the right",
-    "Main subject centered over a wide orange paint smear with black ink splatter below",
-    "Two overlapping torn paper layers with a block of orange behind and black ink drips",
-    "Main subject in the lower half with a huge orange sun-like disc rising behind it",
-    "Symmetrical composition with the subject in the middle and orange and black shapes on both sides",
+BACKGROUNDS = [
+    "on a cream off-white paper background",
+    "on a cream off-white paper background",
+    "on a cream off-white paper background",
+    "on a deep charcoal-black paper background with faint thin grid lines",
 ]
+
+LAYOUTS = [
+    "A large vivid cyan circle behind the main subject and a smaller emerald green circle at the edge",
+    "Main subject on the left, secondary elements overlapping in the center, a big cyan brush-stroke shape on the right",
+    "Main subject centered over a wide emerald green paint smear with black ink splatter below",
+    "Two overlapping torn paper layers with a block of cyan behind and green ink drips",
+    "Main subject in the lower half with a huge cyan sun-like disc rising behind it",
+    "Symmetrical composition with the subject in the middle and cyan and green shapes on both sides",
+]
+
 EXTRAS = [
-    "An orange halftone dot pattern in one corner",
-    "Thin black radiating lines fanning out from behind the subject",
-    "Orange and black ink splatter dots scattered around",
-    "A faint grid of thin lines in the background",
-    "Small torn orange paper strips along one edge",
+    "A cyan halftone dot pattern in one corner",
+    "Thin green radiating lines fanning out from behind the subject",
+    "Cyan and green ink splatter dots scattered around",
+    "A faint grid of thin lines in the background with a thin green line chart curve",
+    "Small torn cyan and green paper strips along one edge",
 ]
 
 
 def build_prompt(scene):
+    scene = scene.replace("orange ", "").replace("Orange ", "")
     return STYLE.format(
+        bg=random.choice(BACKGROUNDS),
         scene=scene,
         layout=random.choice(LAYOUTS),
         extras=random.choice(EXTRAS),

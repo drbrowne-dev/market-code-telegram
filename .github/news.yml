@@ -5,9 +5,15 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: news
+  cancel-in-progress: false
 
 jobs:
-  news:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,21 +25,55 @@ jobs:
       - name: Install packages
         run: pip install -r requirements.txt
 
-      - name: Write and send news post
+      - name: Write article and image
         working-directory: scripts
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           POST_LANGUAGE: English
+          SITE_URL: https://drbrowne-dev.github.io/market-code-telegram
         run: python news_post.py
 
-      - name: Save post history
+      - name: Save to repository
         run: |
           git config user.name "market-code-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add scripts/history.json
-          git diff --staged --quiet || git commit -m "Update post history"
+          git add docs scripts/history.json scripts/last_post.json
+          git diff --staged --quiet || git commit -m "New article"
+          git pull --rebase
           git push
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  telegram:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install packages
+        run: pip install requests
+
+      - name: Send to Telegram
+        working-directory: scripts
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python send_telegram.py

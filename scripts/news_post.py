@@ -1,3 +1,49 @@
+import os
+import json
+import datetime
+import requests
+import feedparser
+from image_gen import generate_image
+
+FEEDS = [
+    "https://www.federalreserve.gov/feeds/press_all.xml",
+    "http://feeds.bbci.co.uk/news/business/rss.xml",
+    "https://www.cnbc.com/id/10000664/device/rss/rss.html",
+    "https://www.ecb.europa.eu/rss/press.html",
+]
+MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+LANG = os.environ.get("POST_LANGUAGE", "English")
+HISTORY_FILE = "history.json"
+
+
+def load_history():
+    try:
+        with open(HISTORY_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def save_history(history, entry):
+    history.append(entry)
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(history[-40:], f, ensure_ascii=False, indent=2)
+
+
+def get_headlines():
+    items = []
+    for url in FEEDS:
+        feed = feedparser.parse(url)
+        print(f"{url} -> {len(feed.entries)} items")
+        for e in feed.entries[:6]:
+            title = e.get("title", "").strip()
+            if title:
+                items.append(f"- {title} ({url.split('/')[2]})")
+    if not items:
+        raise RuntimeError("No headlines found from any feed")
+    return items
+
+
 def ask_gemini(headlines, history):
     recent = "\n".join(
         f"- {h['headline']} | image: {h['image_subject']}" for h in history[-10:]
@@ -44,3 +90,41 @@ def ask_gemini(headlines, history):
     text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
     text = text.replace("```json", "").replace("```", "").strip()
     return json.loads(text)
+
+
+def main():
+    history = load_history()
+    headlines = get_headlines()
+    post = ask_gemini(headlines, history)
+    print("Gemini chose:", post["headline"], "|", post["image_subject"])
+
+    img, source = generate_image(post["image_subject"])
+
+    caption = (
+        f"📰 {post['headline'].upper()}\n\n"
+        f"{post['body']}\n\n"
+        "⚠️ Educational only. Not financial advice.\n"
+        "━━━━━━━━━━\n"
+        "THE MARKET CODE"
+    )[:1000]
+
+    r = requests.post(
+        f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendPhoto",
+        data={"chat_id": os.environ["TELEGRAM_CHAT_ID"], "caption": caption},
+        files={"photo": ("image.jpg", img, "image/jpeg")},
+        timeout=60,
+    )
+    r.raise_for_status()
+    print(f"Posted (image via {source})")
+
+    save_history(
+        history,
+        {
+            "date": datetime.date.today().isoformat(),
+            "headline": post["headline"],
+            "image_subject": post["image_subject"],
+        },
+    )
+
+
+main()

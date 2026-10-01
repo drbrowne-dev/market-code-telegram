@@ -64,8 +64,8 @@ jobs:
           POST_LANGUAGE: English
           MIN_IMPACT: "6"
           MAX_POSTS_PER_DAY: "8"
-          CAL_IMPACTS: "High"
-          CAL_WINDOW_HOURS: "24"
+          CAL_IMPACTS: "High,Medium"
+          CAL_WINDOW_HOURS: "72"
         run: python "$SCRIPT"
 
       - name: Save to repository

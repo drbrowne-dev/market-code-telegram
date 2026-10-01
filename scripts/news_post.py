@@ -14,7 +14,7 @@ FEEDS = [
     "https://www.cnbc.com/id/10000664/device/rss/rss.html",
     "https://www.ecb.europa.eu/rss/press.html",
 ]
-MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
 LANG = os.environ.get("POST_LANGUAGE", "English")
 HISTORY_FILE = "history.json"
 DOCS = "../docs"

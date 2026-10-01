@@ -147,6 +147,8 @@ def ask_gemini(lines):
         "in the next hours, listed below. Times are Phnom Penh time. Forecast is "
         "the market consensus from an economic calendar and Previous is the last "
         "reading.\n"
+        "Write headline, teaser, paragraphs and takeaways in English only. Khmer "
+        "goes only in the fields that end in _km.\n"
         "Rules: use ONLY the events and numbers in the list; do not predict the "
         "actual result; do not invent numbers; never say buy or sell and never "
         "give entries, stops or targets; educational, calm tone.\n"

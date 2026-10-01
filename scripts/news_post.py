@@ -125,10 +125,10 @@ def ask_gemini(items, history):
         },
         timeout=120,
     )
-    r.raise_for_status()
+      if r.status_code != 200:
+        print("Gemini error:", r.status_code, r.text[:500])
+        r.raise_for_status()
     text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
-    text = text.replace("```json", "").replace("```", "").strip()
-    return json.loads(text)
 
 
 def main():

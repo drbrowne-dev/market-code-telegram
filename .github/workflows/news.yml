@@ -32,7 +32,7 @@ jobs:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           POST_LANGUAGE: English
-          SITE_URL: https://drbrowne-dev.github.io/market-code-telegram
+          SITE_URL: https://e11lab-projects.github.io/market-code-telegram
         run: python news_post.py
 
       - name: Save to repository

@@ -52,6 +52,19 @@ KEYWORDS = {
     "oil": 1, "recession": 2, "gdp": 2, "debt ceiling": 2, "shutdown": 2,
 }
 
+KHMER_RULES = (
+    "Also write a Khmer version for readers in Cambodia: headline_km, teaser_km, "
+    "article_km (a list with the SAME number of paragraphs as article) and "
+    "takeaways_km (3 bullet points). Write natural, clear Khmer that everyday "
+    "readers understand, not word-for-word translation. Keep exactly the same "
+    "facts: add nothing and remove nothing. Keep market abbreviations and names in "
+    "Latin letters (XAU/USD, Fed, CPI, NFP, FOMC, USD). Use Arabic digits 0-9, not "
+    "Khmer numerals. Use these Khmer terms: gold = មាស; inflation = អតិផរណា; "
+    "interest rate = អត្រាការប្រាក់; central bank = ធនាគារកណ្តាល; US dollar = "
+    "ដុល្លារអាមេរិក; market = ទីផ្សារ; traders = អ្នកជួញដូរ. For other technical "
+    "terms you are not sure about, keep the English term in Latin letters.\n"
+)
+
 
 def clean(text):
     text = re.sub(r"<[^>]+>", " ", text or "")
@@ -61,7 +74,11 @@ def clean(text):
 def as_list(v):
     if isinstance(v, list):
         return [str(x).strip() for x in v if str(x).strip()]
-    return [p.strip() for p in str(v).split("\n") if p.strip()]
+    return [p.strip() for p in str(v or "").split("\n") if p.strip()]
+
+
+def text_of(v):
+    return str(v or "").strip()
 
 
 def set_output(posted):
@@ -145,7 +162,7 @@ def call_gemini(key, prompt):
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         for attempt in range(1, 4):
             try:
-                r = requests.post(url, headers=headers, json=body, timeout=120)
+                r = requests.post(url, headers=headers, json=body, timeout=180)
             except requests.RequestException as e:
                 last = f"{model}: {e}"
                 print(f"Gemini network error ({model}, try {attempt}):", e)
@@ -198,22 +215,24 @@ def ask_gemini(items, history):
         "Educational only: never say buy or sell, never give entries, stops or "
         "price targets, and never present a prediction as certain. Calm, "
         "professional tone.\n"
+        + KHMER_RULES +
         "Return ONLY JSON with these keys:\n"
         "headline: max 10 words, news style;\n"
         "teaser: 2 short sentences, max 260 characters; the second sentence "
         "says why it matters for gold;\n"
         "article: a list of 4 to 6 paragraphs (about 250 to 400 words in total);\n"
         "takeaways: a list of exactly 3 short bullet points;\n"
+        "headline_km, teaser_km, article_km, takeaways_km: the Khmer versions;\n"
         "gold_impact: one of bullish, bearish, mixed, neutral (the likely effect "
         "on gold);\n"
         "impact_score: integer from 1 to 10 (how strongly this is likely to "
         "move gold);\n"
-        "image_subject: ONE scene description (max 35 words) for a collage "
-        "illustration with these elements: plain gold bars with blank unmarked "
-        "surfaces, the main subject of the story (for example the Federal "
-        "Reserve building, a country map, an oil rig, dollar banknotes, a "
-        "factory), and ONE arrow showing the likely effect on gold: pointing up "
-        "if bullish, down if bearish, sideways if mixed or neutral. Do not "
+        "image_subject: ONE scene description in English (max 35 words) for a "
+        "collage illustration with these elements: plain gold bars with blank "
+        "unmarked surfaces, the main subject of the story (for example the "
+        "Federal Reserve building, a country map, an oil rig, dollar banknotes, "
+        "a factory), and ONE arrow showing the likely effect on gold: pointing "
+        "up if bullish, down if bearish, sideways if mixed or neutral. Do not "
         "mention colours. Make the main subject look clearly different from the "
         "recent images listed below. No text, numbers or people;\n"
         "source_index: the integer index of the chosen item.\n\n"
@@ -267,12 +286,13 @@ def main():
         idx = 0
     src = items[idx]
 
-    impact = str(post.get("gold_impact", "mixed")).strip().lower()
+    impact = text_of(post.get("gold_impact", "mixed")).lower()
     if impact not in ("bullish", "bearish", "mixed", "neutral"):
         impact = "mixed"
 
     print("Gemini chose:", post["headline"], "| source:", src["source"])
     print("Gold impact:", impact, "| score:", impact_score)
+    print("Khmer headline:", text_of(post.get("headline_km")) or "(missing)")
     print("Scene:", post["image_subject"])
 
     img, provider = generate_image(post["image_subject"])
@@ -285,8 +305,11 @@ def main():
     article = {
         "slug": slug,
         "date": today,
-        "headline": post["headline"].strip(),
-        "teaser": post["teaser"].strip(),
+        "headline": text_of(post["headline"]),
+        "teaser": text_of(post["teaser"]),
+        "headline_km": text_of(post.get("headline_km")),
+        "teaser_km": text_of(post.get("teaser_km")),
+        "impact": impact,
         "source_name": src["source"],
         "source_url": src["link"] or "#",
     }
@@ -294,12 +317,20 @@ def main():
     articles.insert(0, article)
     webpage.save_articles(DOCS, articles)
     webpage.write_site(
-        DOCS, article, as_list(post["article"]), as_list(post["takeaways"]), articles
+        DOCS,
+        article,
+        as_list(post["article"]),
+        as_list(post["takeaways"]),
+        as_list(post.get("article_km")),
+        as_list(post.get("takeaways_km")),
+        articles,
     )
 
     last = {
         "headline": article["headline"],
         "teaser": article["teaser"],
+        "headline_km": article["headline_km"],
+        "teaser_km": article["teaser_km"],
         "impact": impact,
         "url": f"{webpage.SITE_URL}/news/{slug}.html",
         "image_path": f"{DOCS}/news/{slug}.jpg",

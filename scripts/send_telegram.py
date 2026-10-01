@@ -6,14 +6,13 @@ import requests
 with open("last_post.json", encoding="utf-8") as f:
     post = json.load(f)
 
-caption = (
-    f"📰 <b>{html.escape(post['headline'])}</b>\n\n"
-    f"{html.escape(post['teaser'])}\n\n"
-    "<i>Educational only. Not financial advice.</i>\n"
-    "THE MARKET CODE × E11 Lab"
-)
+url = html.escape(post["url"], quote=True)
 
-button = {"inline_keyboard": [[{"text": "Read full story →", "url": post["url"]}]]}
+caption = (
+    f"<b>{html.escape(post['headline'])}</b>\n\n"
+    f"{html.escape(post['teaser'])}\n\n"
+    f'<a href="{url}">Read More👈</a>'
+)
 
 with open(post["image_path"], "rb") as img:
     r = requests.post(
@@ -22,7 +21,6 @@ with open(post["image_path"], "rb") as img:
             "chat_id": os.environ["TELEGRAM_CHAT_ID"],
             "caption": caption,
             "parse_mode": "HTML",
-            "reply_markup": json.dumps(button),
         },
         files={"photo": ("image.jpg", img, "image/jpeg")},
         timeout=60,

@@ -2,6 +2,7 @@ import os
 import re
 import json
 import html
+import time
 import datetime
 import requests
 import feedparser
@@ -14,7 +15,11 @@ FEEDS = [
     "https://www.cnbc.com/id/10000664/device/rss/rss.html",
     "https://www.ecb.europa.eu/rss/press.html",
 ]
-MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
+MODELS = [
+    os.environ.get("GEMINI_MODEL", "gemini-3.8-flash"),
+    "gemini-3.7-flash",
+    "gemini-3.5-flash-lite",
+]
 LANG = os.environ.get("POST_LANGUAGE", "English")
 HISTORY_FILE = "history.json"
 DOCS = "../docs"
@@ -67,6 +72,34 @@ def get_items():
     return items
 
 
+def call_gemini(key, prompt):
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"responseMimeType": "application/json"},
+    }
+    headers = {"x-goog-api-key": key, "Content-Type": "application/json"}
+    last = "no attempt made"
+    for model in MODELS:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        for attempt in range(1, 4):
+            try:
+                r = requests.post(url, headers=headers, json=body, timeout=120)
+            except requests.RequestException as e:
+                last = f"{model}: {e}"
+                print(f"Gemini network error ({model}, try {attempt}):", e)
+                time.sleep(10 * attempt)
+                continue
+            if r.status_code == 200:
+                print("Gemini model used:", model)
+                return r.json()
+            last = f"{model}: {r.status_code}"
+            print(f"Gemini error ({model}, try {attempt}):", r.status_code, r.text[:300])
+            if r.status_code in (400, 403, 404):
+                break
+            time.sleep(15 * attempt)
+    raise RuntimeError("All Gemini models failed. Last: " + last)
+
+
 def ask_gemini(items, history):
     key = os.environ.get("GEMINI_API_KEY", "").strip()
     if not key:
@@ -108,32 +141,17 @@ def ask_gemini(items, history):
         "the relevant country map, an oil pump jack or tanker, gold bars, a "
         "bitcoin coin, a bull or bear statue, or a factory or shopping cart for "
         "economic data; (2) the currencies or assets involved, shown as coins or "
-        "banknotes; (3) the direction of the story as an arrow or bar chart "
-        "without numbers: rising if bullish, falling if bearish, flat if "
-        "neutral. Do not mention colours. Choose elements that look clearly "
-        "different from the recent images listed below. No text, numbers or "
-        "people in the scene;\n"
+        "banknotes; (3) the direction of the story as a single clear arrow or "
+        "bar chart without numbers: pointing up if bullish, pointing down if "
+        "bearish, pointing sideways if neutral. Do not mention colours. Choose "
+        "elements that look clearly different from the recent images listed "
+        "below. No text, numbers or people in the scene;\n"
         "source_index: the integer index of the chosen item.\n\n"
         "RECENTLY POSTED (avoid repeating):\n" + recent + "\n\n"
         "TODAY'S ITEMS:\n" + listing
     )
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
-    r = requests.post(
-        url,
-        headers={
-            "x-goog-api-key": key,
-            "Content-Type": "application/json",
-        },
-        json={
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"responseMimeType": "application/json"},
-        },
-        timeout=120,
-    )
-    if r.status_code != 200:
-        print("Gemini error:", r.status_code, r.text[:500])
-        r.raise_for_status()
-    text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
+    data = call_gemini(key, prompt)
+    text = data["candidates"][0]["content"]["parts"][0]["text"]
     text = text.replace("```json", "").replace("```", "").strip()
     return json.loads(text)
 

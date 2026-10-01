@@ -12,14 +12,23 @@ LABELS = {
     "mixed": "◆ Mixed",
     "neutral": "● Neutral",
 }
-impact = LABELS.get(post.get("impact", "mixed"), "◆ Mixed")
+
+if post.get("impact_line"):
+    impact_html = f"<b>{html.escape(post['impact_line'])}</b>"
+else:
+    label = LABELS.get(post.get("impact", "mixed"), "◆ Mixed")
+    impact_html = f"<b>XAU/USD impact:</b> {label}"
+
+extra = "\n".join(html.escape(x) for x in post.get("extra", [])[:4])
+extra_block = f"{extra}\n\n" if extra else ""
 
 url = html.escape(post["url"], quote=True)
 
 caption = (
     f"<b>{html.escape(post['headline'])}</b>\n\n"
     f"{html.escape(post['teaser'])}\n\n"
-    f"<b>XAU/USD impact:</b> {impact}\n\n"
+    f"{extra_block}"
+    f"{impact_html}\n\n"
     f'<a href="{url}">Read More👈</a>'
 )
 
@@ -34,5 +43,7 @@ with open(post["image_path"], "rb") as img:
         files={"photo": ("image.jpg", img, "image/jpeg")},
         timeout=60,
     )
-r.raise_for_status()
+if r.status_code != 200:
+    print("Telegram error:", r.status_code, r.text[:300])
+    r.raise_for_status()
 print("Sent to Telegram:", post["url"])

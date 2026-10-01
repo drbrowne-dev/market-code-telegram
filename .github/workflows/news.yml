@@ -2,10 +2,19 @@ name: News Post
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "What to run"
+        type: choice
+        options:
+          - news
+          - calendar
+        default: news
   schedule:
     - cron: "7 0-16/2 * * 1-5"
     - cron: "47 12 * * 1-5"
     - cron: "47 13 * * 1-5"
+    - cron: "30 0 * * 1-5"
 
 permissions:
   contents: write
@@ -37,6 +46,14 @@ jobs:
           REPO="${GITHUB_REPOSITORY#*/}"
           echo "SITE_URL=https://${OWNER}.github.io/${REPO}" >> "$GITHUB_ENV"
 
+      - name: Choose what to run
+        run: |
+          SCRIPT="news_post.py"
+          if [ "${{ github.event.schedule }}" = "30 0 * * 1-5" ] || [ "${{ github.event.inputs.mode }}" = "calendar" ]; then
+            SCRIPT="calendar_post.py"
+          fi
+          echo "SCRIPT=$SCRIPT" >> "$GITHUB_ENV"
+
       - name: Write article and image
         id: gen
         working-directory: scripts
@@ -47,7 +64,9 @@ jobs:
           POST_LANGUAGE: English
           MIN_IMPACT: "6"
           MAX_POSTS_PER_DAY: "8"
-        run: python news_post.py
+          CAL_IMPACTS: "High"
+          CAL_WINDOW_HOURS: "24"
+        run: python "$SCRIPT"
 
       - name: Save to repository
         if: steps.gen.outputs.posted == 'true'

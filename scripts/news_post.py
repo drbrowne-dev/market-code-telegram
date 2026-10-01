@@ -68,6 +68,11 @@ def get_items():
 
 
 def ask_gemini(items, history):
+    key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not key:
+        raise RuntimeError("GEMINI_API_KEY secret is empty or missing")
+    print("Gemini key length:", len(key))
+
     recent = "\n".join(
         f"- {h['headline']} | image: {h['image_subject']}" for h in history[-10:]
     ) or "- (none yet)"
@@ -116,7 +121,7 @@ def ask_gemini(items, history):
     r = requests.post(
         url,
         headers={
-            "x-goog-api-key": os.environ["GEMINI_API_KEY"],
+            "x-goog-api-key": key,
             "Content-Type": "application/json",
         },
         json={
@@ -125,10 +130,12 @@ def ask_gemini(items, history):
         },
         timeout=120,
     )
-      if r.status_code != 200:
+    if r.status_code != 200:
         print("Gemini error:", r.status_code, r.text[:500])
         r.raise_for_status()
     text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
+    text = text.replace("```json", "").replace("```", "").strip()
+    return json.loads(text)
 
 
 def main():

@@ -1,9 +1,9 @@
 {
-  "headline": "Gold Steadifies as Markets Await U.S. Jobs Data",
-  "teaser": "Gold prices remained little changed while investors awaited crucial U.S. labor market reports. A stronger dollar and high yields weighed on non-yielding bullion.",
-  "headline_km": "មាសមានភាពនឹងនរ ខណៈទីផ្សាររង់ចាំទិន្នន័យការងារអាមេរិក",
-  "teaser_km": "តម្លៃមាសមានការផ្លាស់ប្តូរតិចតួចប៉ុណ្ណោះ ខណៈអ្នកវិនិយោគរង់ចាំរបាយការណ៍ទីផ្សារការងារអាមេរិកដ៏សំខាន់។ ការងើបឡើងនៃដុល្លារអាមេរិក និងអត្រាការប្រាក់រតនាគារខ្ពស់បានដាក់សម្ពាធដល់លោហៈមានតម្លៃនេះ។",
-  "impact": "mixed",
-  "url": "https://e11lab-projects.github.io/market-code-telegram/news/2026-10-02-gold-steadifies-as-markets-await-u-s-jobs-data.html",
-  "image_path": "../docs/news/2026-10-02-gold-steadifies-as-markets-await-u-s-jobs-data.jpg"
+  "headline": "US Labor Market Falters as September Payrolls Miss Forecast",
+  "teaser": "Nonfarm payrolls grew by just 29,000 in September and the unemployment rate rose to 4.2%, according to the Bureau of Labor Statistics. The weaker labor data significantly reduced expectations of further Fed rate hikes.",
+  "headline_km": "ទីផ្សារការងារអាรัฐធ្លាក់ចុះខណៈទិន្នន័យការងារខែកញ្ញាមិនដល់ការរំពឹងទុក",
+  "teaser_km": "ទិន្នន័យការងារក្រៅវិស័យកសិកម្មបានកើនឡើងត្រឹមតែ ២៩,០០០ កន្លែងក្នុងខែកញ្ញា ហើយអត្រាអ្នកគ្មានការងារធ្វើបានកើនឡើងដល់ ៤,២%។ ទិន្នន័យខ្សោយនេះបានកាត់បន្ថយការរំពឹងទុកលើការដំឡើងអត្រាការប្រាក់របស់ Fed យ៉ាងខ្លាំង។",
+  "impact": "bullish",
+  "url": "https://e11lab-projects.github.io/market-code-telegram/news/2026-10-02-us-labor-market-falters-as-september-payrolls-miss-forecast.html",
+  "image_path": "../docs/news/2026-10-02-us-labor-market-falters-as-september-payrolls-miss-forecast.jpg"
 }

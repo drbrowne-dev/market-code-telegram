@@ -1,9 +1,15 @@
 {
-  "headline": "Bond Yields Surge to 24-Year High as Stocks Edge Lower",
-  "teaser": "Bond yields hit a two-decade peak, pressuring the broader market as buyers step back. This surge in Treasury yields creates direct headwinds for non-yielding gold.",
-  "headline_km": "អត្រាផលប័ត្របំណុលរដ្ឋឡើងដល់កម្រិតខ្ពស់បំផុតក្នុងរយៈពេល ២៤ ឆ្នាំ ខណៈទីផ្សារភាគហ៊ុនធ្លាក់ចុះបន្តិច",
-  "teaser_km": "អត្រាផលប័ត្របំណុលបានឡើងដល់កម្រិតកំពូលក្នុងរយៈពេលពីរទសវត្សរ៍ ដែលដាក់សម្ពាធលើទីផ្សារទូទៅ។ ការកើនឡើងនៃអត្រាផលប័ត្របំណុលនេះបង្កើតជាឧបសគ្គផ្ទាល់សម្រាប់ទីផ្សារមាស។",
-  "impact": "bearish",
-  "url": "https://e11lab-projects.github.io/market-code-telegram/news/2026-10-02-bond-yields-surge-to-24-year-high-as-stocks-edge-lower.html",
-  "image_path": "../docs/news/2026-10-02-bond-yields-surge-to-24-year-high-as-stocks-edge-lower.jpg"
+  "headline": "US Employment Report Approaches: Key Volatility Ahead for Gold",
+  "teaser": "Important US labor market data releases are scheduled for Friday at 19:30 Phnom Penh time. Prepare for potential market movement.",
+  "headline_km": "របាយការណ៍ការងារអាមេរិកជិតមកដល់៖ ទីផ្សារមាសត្រៀមទទួលការប្រែប្រួលខ្លាំង",
+  "teaser_km": "ទិន្នន័យទីផ្សារការងារអាមេរិកដ៏សំខាន់នឹងត្រូវប្រកាសនៅថ្ងៃសុក្រ វេលាម៉ោង 19:30 នាទី តាមម៉ោងនៅភ្នំពេញ។ សូមត្រៀមខ្លួនសម្រាប់ចលនាទីផ្សារដែលអាចកើតមាន។",
+  "impact": "",
+  "impact_line": "Event risk: ⚠ Volatility possible",
+  "extra": [
+    "🕒 Fri 19:30 · Average Hourly Earnings m/m (Forecast 0.3% | Previous 0.3%)",
+    "🕒 Fri 19:30 · Non-Farm Employment Change (Forecast 89K | Previous 162K)",
+    "🕒 Fri 19:30 · Unemployment Rate (Forecast 4.1% | Previous 4.1%)"
+  ],
+  "url": "https://e11lab-projects.github.io/market-code-telegram/news/2026-10-02-us-employment-report-approaches-key-volatility-ahead-for-gold.html",
+  "image_path": "../docs/news/2026-10-02-us-employment-report-approaches-key-volatility-ahead-for-gold.jpg"
 }

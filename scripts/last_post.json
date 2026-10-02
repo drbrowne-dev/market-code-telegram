@@ -1,9 +1,9 @@
 {
-  "headline": "US Labor Market Falters as September Payrolls Miss Forecast",
-  "teaser": "Nonfarm payrolls grew by just 29,000 in September and the unemployment rate rose to 4.2%, according to the Bureau of Labor Statistics. The weaker labor data significantly reduced expectations of further Fed rate hikes.",
-  "headline_km": "ទីផ្សារការងារអាรัฐធ្លាក់ចុះខណៈទិន្នន័យការងារខែកញ្ញាមិនដល់ការរំពឹងទុក",
-  "teaser_km": "ទិន្នន័យការងារក្រៅវិស័យកសិកម្មបានកើនឡើងត្រឹមតែ ២៩,០០០ កន្លែងក្នុងខែកញ្ញា ហើយអត្រាអ្នកគ្មានការងារធ្វើបានកើនឡើងដល់ ៤,២%។ ទិន្នន័យខ្សោយនេះបានកាត់បន្ថយការរំពឹងទុកលើការដំឡើងអត្រាការប្រាក់របស់ Fed យ៉ាងខ្លាំង។",
+  "headline": "Gold Jumps as Soft Jobs Report Cools Fed Rate Bets",
+  "teaser": "The US added just 29,000 jobs in September, pushing gold higher as traders lowered expectations for a Fed rate hike. This weak labor data directly impacts rate expectations and currency valuations, shifting market momentum.",
+  "headline_km": "មាសស្ទុះឡើងក្រោយទិន្នន័យការងារខ្សោយកាត់បន្ថយការរំពឹងទុកអត្រាការប្រាក់ Fed",
+  "teaser_km": "សហរដ្ឋអាមេរិកបានបន្ថែមការងារត្រឹមតែ ២៩,០០០ ប៉ុណ្ណោះក្នុងខែកញ្ញា ដោយបានជំរុញឱ្យតម្លៃមាសកើនឡើង ខណៈអ្នកជួញដោកាត់បន្ថយការព្យាករណ៍លើការដំឡើងអត្រាការប្រាក់របស់ Fed។ ទិន្នន័យទីផ្សារការងារខ្សោយនេះប៉ះពាល់ផ្ទាល់ដល់ការរំពឹងទុកអត្រាការប្រាក់ និងតម្លៃប្រាក់ដុល្លារ។",
   "impact": "bullish",
-  "url": "https://e11lab-projects.github.io/market-code-telegram/news/2026-10-02-us-labor-market-falters-as-september-payrolls-miss-forecast.html",
-  "image_path": "../docs/news/2026-10-02-us-labor-market-falters-as-september-payrolls-miss-forecast.jpg"
+  "url": "https://e11lab-projects.github.io/market-code-telegram/news/2026-10-02-gold-jumps-as-soft-jobs-report-cools-fed-rate-bets.html",
+  "image_path": "../docs/news/2026-10-02-gold-jumps-as-soft-jobs-report-cools-fed-rate-bets.jpg"
 }

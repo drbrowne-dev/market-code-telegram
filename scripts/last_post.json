@@ -1,15 +1,9 @@
 {
-  "headline": "US Employment Report Approaches: Key Volatility Ahead for Gold",
-  "teaser": "Important US labor market data releases are scheduled for Friday at 19:30 Phnom Penh time. Prepare for potential market movement.",
-  "headline_km": "របាយការណ៍ការងារអាមេរិកជិតមកដល់៖ ទីផ្សារមាសត្រៀមទទួលការប្រែប្រួលខ្លាំង",
-  "teaser_km": "ទិន្នន័យទីផ្សារការងារអាមេរិកដ៏សំខាន់នឹងត្រូវប្រកាសនៅថ្ងៃសុក្រ វេលាម៉ោង 19:30 នាទី តាមម៉ោងនៅភ្នំពេញ។ សូមត្រៀមខ្លួនសម្រាប់ចលនាទីផ្សារដែលអាចកើតមាន។",
-  "impact": "",
-  "impact_line": "Event risk: ⚠ Volatility possible",
-  "extra": [
-    "🕒 Fri 19:30 · Average Hourly Earnings m/m (Forecast 0.3% | Previous 0.3%)",
-    "🕒 Fri 19:30 · Non-Farm Employment Change (Forecast 89K | Previous 162K)",
-    "🕒 Fri 19:30 · Unemployment Rate (Forecast 4.1% | Previous 4.1%)"
-  ],
-  "url": "https://e11lab-projects.github.io/market-code-telegram/news/2026-10-02-us-employment-report-approaches-key-volatility-ahead-for-gold.html",
-  "image_path": "../docs/news/2026-10-02-us-employment-report-approaches-key-volatility-ahead-for-gold.jpg"
+  "headline": "Bond Yields Retreat as Buyers Return to Treasury Market",
+  "teaser": "US bond yields suddenly retreated from recent highs as buyers stepped back into the Treasury market. This dynamic influences real yields and rate expectations, directly impacting the valuation of XAU/USD.",
+  "headline_km": "អត្រាការប្រាក់សញ្ញាប័ណ្ណធ្លាក់ចុះ ខណៈអ្នកទិញត្រឡប់ចូលទីផ្សារ Treasury វិញ",
+  "teaser_km": "អត្រាការប្រាក់សញ្ញាប័ណ្ណអាមេរិកបានធ្លាក់ចុះយ៉ាងលឿនពីកម្រិតខ្ពស់ថ្មីៗនេះ ខណៈដែលអ្នកទិញបានចូលមកទីផ្សារ Treasury វិញ។ ចលនានេះមានឥទ្ធិពលលើអត្រាការប្រាក់ពិតប្រាកដ និងការរំពឹងទុកលើអត្រាការប្រាក់ ដែលប៉ះពាល់ផ្ទាល់ដល់តម្លៃ XAU/USD។",
+  "impact": "bullish",
+  "url": "https://e11lab-projects.github.io/market-code-telegram/news/2026-10-02-bond-yields-retreat-as-buyers-return-to-treasury-market.html",
+  "image_path": "../docs/news/2026-10-02-bond-yields-retreat-as-buyers-return-to-treasury-market.jpg"
 }

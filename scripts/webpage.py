@@ -31,7 +31,7 @@ UI = {
     "nav_news": ("News", "ព័ត៌មាន"),
     "nav_about": ("About", "អំពីយើង"),
     "nav_disclaimer": ("Disclaimer", "ការបដិសេធទំនួលខុសត្រូវ"),
-    "join": ("Join Telegram", "ចូលរួម Telegram"),
+    "join": ("Join Telegram for Daily Alert", "ចូលរួម Telegram"),
     "all_news": ("← All news", "← ព័ត៌មានទាំងអស់"),
     "takeaways": ("Key takeaways", "ចំណុចសំខាន់ៗ"),
     "source": ("Source", "ប្រភព"),
